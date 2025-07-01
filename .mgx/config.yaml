@@ -1,0 +1,5 @@
+build: null
+build_path: null
+dev: cd /workspace/dart_template && echo "Project would be served here"
+install: cd /workspace/dart_template && echo "Project dependencies would be installed
+  here"

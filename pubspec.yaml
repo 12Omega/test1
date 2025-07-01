@@ -1,0 +1,37 @@
+name: smart_parking_app
+description: A Smart Parking App using Flutter and MongoDB
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.5
+  provider: ^6.0.5
+  shared_preferences: ^2.1.1
+  http: ^0.13.6
+  google_maps_flutter: ^2.2.8
+  geolocator: ^9.0.2
+  flutter_polyline_points: ^1.0.0
+  intl: ^0.18.1
+  flutter_stripe: ^9.2.0
+  flutter_dotenv: ^5.1.0
+  dio: ^5.1.2
+  flutter_secure_storage: ^8.0.0
+  mongo_dart: ^0.9.1
+  image_picker: ^0.8.7+5
+  flutter_rating_bar: ^4.0.1
+  cached_network_image: ^3.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - .env
