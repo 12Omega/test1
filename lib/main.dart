@@ -3,14 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_parking_app/core/di/dependency_injection.dart';
-import 'package:smart_parking_app/core/utils/constants.dart';
+// import 'package:smart_parking_app/core/utils/constants.dart'; // Removed unused import
 import 'package:smart_parking_app/presentation/bloc/auth/auth_bloc.dart';
+import 'package:smart_parking_app/presentation/bloc/auth/auth_event.dart';
+import 'package:smart_parking_app/presentation/bloc/auth/auth_state.dart';
 import 'package:smart_parking_app/presentation/bloc/booking/booking_bloc.dart';
 import 'package:smart_parking_app/presentation/bloc/parking/parking_bloc.dart';
 import 'package:smart_parking_app/screens/home_screen.dart';
 import 'package:smart_parking_app/screens/login_screen.dart';
 import 'package:smart_parking_app/services/booking_service.dart';
 import 'package:smart_parking_app/services/parking_service.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,11 +56,11 @@ class MyApp extends StatelessWidget {
           title: 'Smart Parking App',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            primaryColor: AppColors.primary,
+            primaryColor: AppColors.primaryColor,
             colorScheme: ColorScheme.fromSwatch().copyWith(
-              primary: AppColors.primary,
-              secondary: AppColors.secondary,
-              background: AppColors.background,
+              primary: AppColors.primaryColor,
+              secondary: AppColors.secondaryColor,
+              surface: AppColors.background, // Use surface instead of background for ColorScheme
             ),
             scaffoldBackgroundColor: AppColors.background,
             textTheme: const TextTheme(
@@ -81,8 +84,8 @@ class MyApp extends StatelessWidget {
               ),
             ),
             appBarTheme: const AppBarTheme(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: AppColors.white, // Assuming white text on primary app bar
               elevation: 0,
             ),
           ),
@@ -97,8 +100,8 @@ class MyApp extends StatelessWidget {
                   ),
                 );
               }
-              
-              if (state is AuthAuthenticated) {
+
+              if (state is Authenticated) { // Changed from AuthAuthenticated
                 return const HomeScreen();
               } else {
                 return const LoginScreen();

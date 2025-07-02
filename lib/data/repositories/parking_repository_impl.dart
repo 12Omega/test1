@@ -15,10 +15,12 @@ class ParkingRepositoryImpl implements ParkingRepository {
 
   @override
   Future<Either<Failure, List<ParkingSpotEntity>>> getNearbyParkingSpots(
-      double latitude, double longitude) async {
+      double latitude, double longitude, {double? radius}) async {
     try {
-      final parkingSpots = await parkingService.getNearbyParkingSpots(latitude, longitude);
-      return Right(parkingSpots);
+      // Pass radius to service. Service needs to be updated to use it.
+      final parkingSpotModels = await parkingService.getNearbyParkingSpots(latitude, longitude, radius: radius);
+      final parkingSpotEntities = parkingSpotModels.map((model) => model.toEntity()).toList();
+      return Right(parkingSpotEntities);
     } on LocationException catch (e) {
       return Left(LocationFailure(message: e.message));
     } catch (e) {
@@ -29,9 +31,16 @@ class ParkingRepositoryImpl implements ParkingRepository {
   @override
   Future<Either<Failure, ParkingSpotEntity>> getParkingSpotById(String id) async {
     try {
-      final parkingSpot = await parkingService.getParkingSpotById(id);
-      return Right(parkingSpot);
+      final parkingSpotModel = await parkingService.getParkingSpotById(id);
+      if (parkingSpotModel == null) {
+        return Left(NotFoundFailure(message: 'Parking spot with id $id not found'));
+      }
+      return Right(parkingSpotModel.toEntity());
     } catch (e) {
+      // Catching generic Exception from service if spot not found
+      if (e.toString().contains('Parking spot not found')) {
+        return Left(NotFoundFailure(message: 'Parking spot with id $id not found'));
+      }
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -49,8 +58,9 @@ class ParkingRepositoryImpl implements ParkingRepository {
   @override
   Future<Either<Failure, List<ParkingSpotEntity>>> getAllParkingSpots() async {
     try {
-      final parkingSpots = await parkingService.getAllParkingSpots();
-      return Right(parkingSpots);
+      final parkingSpotModels = await parkingService.getAllParkingSpots();
+      final parkingSpotEntities = parkingSpotModels.map((model) => model.toEntity()).toList();
+      return Right(parkingSpotEntities);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
@@ -59,29 +69,63 @@ class ParkingRepositoryImpl implements ParkingRepository {
   @override
   Future<Either<Failure, List<ParkingSpotEntity>>> searchParkingSpots(String query) async {
     try {
-      final parkingSpots = await parkingService.searchParkingSpots(query);
-      return Right(parkingSpots);
+      final parkingSpotModels = await parkingService.searchParkingSpots(query);
+      final parkingSpotEntities = parkingSpotModels.map((model) => model.toEntity()).toList();
+      return Right(parkingSpotEntities);
     } catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, List<ParkingSpotEntity>>> filterParkingSpots({
-    bool? hasAvailableSpots,
-    List<String>? features,
-    double? maxRate,
-    bool? isOpen24Hours,
+  Future<Either<Failure, List<ParkingSpotEntity>>> getParkingSpotsByFilter({
+    double? minRating,
+    List<String>? requiredFeatures,
+    String? sortBy,
+    bool? ascending,
   }) async {
     try {
-      final parkingSpots = await parkingService.filterParkingSpots(
-        hasAvailableSpots: hasAvailableSpots,
-        features: features,
-        maxRate: maxRate,
-        isOpen24Hours: isOpen24Hours,
+      // Ensure parkingService has a matching method or adapt the call.
+      // For now, assuming parkingService will be updated to have getParkingSpotsByFilter.
+      final parkingSpotModels = await parkingService.getParkingSpotsByFilter(
+        minRating: minRating,
+        requiredFeatures: requiredFeatures,
+        sortBy: sortBy,
+        ascending: ascending,
       );
-      return Right(parkingSpots);
+      final parkingSpotEntities = parkingSpotModels.map((model) => model.toEntity()).toList();
+      return Right(parkingSpotEntities);
     } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Stream<ParkingSpotEntity> getParkingSpotUpdates(String spotId) {
+    // This is a basic implementation. A real app might use WebSockets or Firestore streams.
+    // Listen to changes in ParkingService and emit new entity if the spotId matches.
+    return parkingService.getSpotUpdates(spotId).map((parkingSpotModel) {
+      if (parkingSpotModel == null) {
+        // If the model is null (e.g. spot removed or error), we might want to throw an error
+        // or emit a specific error state if the Stream was Stream<Either<Failure, ParkingSpotEntity>>
+        throw Exception('Parking spot $spotId not found or removed during update.');
+      }
+      return parkingSpotModel.toEntity();
+    });
+  }
+
+  @override
+  Future<Either<Failure, int>> getAvailableSpotsCount(String spotId) async {
+    try {
+      final parkingSpotModel = await parkingService.getParkingSpotById(spotId);
+      if (parkingSpotModel == null) {
+        return Left(NotFoundFailure(message: 'Parking spot with id $spotId not found'));
+      }
+      return Right(parkingSpotModel.availableSpots);
+    } catch (e) {
+      if (e.toString().contains('Parking spot not found')) {
+        return Left(NotFoundFailure(message: 'Parking spot with id $spotId not found'));
+      }
       return Left(ServerFailure(message: e.toString()));
     }
   }

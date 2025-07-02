@@ -1,5 +1,6 @@
 // lib/models/booking.dart
 import 'dart:convert';
+import 'package:smart_parking_app/domain/entities/booking_entity.dart' as entities;
 
 enum BookingStatus {
   pending,
@@ -124,9 +125,9 @@ class Booking {
   // Check if booking is currently active
   bool get isActive {
     final now = DateTime.now();
-    return status == BookingStatus.confirmed && 
-           now.isAfter(startTime) && 
-           now.isBefore(endTime);
+    return status == BookingStatus.confirmed &&
+        now.isAfter(startTime) &&
+        now.isBefore(endTime);
   }
 
   // Check if booking is upcoming (confirmed but not yet started)
@@ -138,7 +139,47 @@ class Booking {
   // Check if booking is past (ended)
   bool get isPast {
     final now = DateTime.now();
-    return status == BookingStatus.completed || 
-          (status == BookingStatus.confirmed && now.isAfter(endTime));
+    return status == BookingStatus.completed ||
+        (status == BookingStatus.confirmed && now.isAfter(endTime));
+  }
+
+  entities.BookingEntity toEntity() {
+    return entities.BookingEntity(
+      id: id,
+      parkingSpotId: parkingSpotId,
+      parkingSpotName: parkingSpotName,
+      startTime: startTime,
+      endTime: endTime,
+      vehicleType: vehicleType,
+      vehiclePlate: vehiclePlate,
+      amount: amount,
+      status: _mapModelStatusToEntityStatus(status),
+      // createdAt is not in BookingEntity, so it's omitted
+    );
   }
 }
+
+// Helper function to map model status to entity status
+// This should ideally be part of the Booking model or a dedicated mapper class
+entities.BookingStatus _mapModelStatusToEntityStatus(BookingStatus modelStatus) {
+  switch (modelStatus) {
+    case BookingStatus.pending:
+      return entities.BookingStatus.pending;
+    case BookingStatus.confirmed:
+    case BookingStatus.active: // Map model's 'active' to entity's 'confirmed'
+      return entities.BookingStatus.confirmed;
+    case BookingStatus.completed:
+      return entities.BookingStatus.completed;
+    case BookingStatus.cancelled:
+      return entities.BookingStatus.cancelled;
+    default:
+    // This case should ideally not be reached if all model statuses are handled.
+    // Throw an error or return a default entity status.
+    // For safety, let's default to pending or throw.
+    // Depending on strictness, you might prefer:
+    // throw ArgumentError('Unknown BookingStatus from model: $modelStatus');
+      return entities.BookingStatus.pending;
+  }
+}
+
+// Need to import: import 'package:smart_parking_app/domain/entities/booking_entity.dart' as entities;

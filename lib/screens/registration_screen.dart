@@ -1,8 +1,11 @@
 // lib/screens/registration_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_parking_app/core/utils/constants.dart';
+// import 'package:smart_parking_app/core/utils/constants.dart'; // Removed unused import
 import 'package:smart_parking_app/presentation/bloc/auth/auth_bloc.dart';
+import 'package:smart_parking_app/presentation/bloc/auth/auth_event.dart';
+import 'package:smart_parking_app/presentation/bloc/auth/auth_state.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 import 'package:smart_parking_app/screens/home_screen.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 
@@ -48,10 +51,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
             );
           }
-          if (state is AuthAuthenticated) {
+          if (state is Authenticated) { // Changed from AuthAuthenticated
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
+                  (route) => false,
             );
           }
         },
@@ -86,7 +89,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryColor,
                               ),
                             ),
                           ),
@@ -118,7 +121,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryColor,
                               ),
                             ),
                           ),
@@ -166,7 +169,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryColor,
                               ),
                             ),
                           ),
@@ -198,7 +201,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               onPressed: () {
                                 setState(() {
                                   _isConfirmPasswordVisible =
-                                      !_isConfirmPasswordVisible;
+                                  !_isConfirmPasswordVisible;
                                 });
                               },
                             ),
@@ -214,7 +217,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryColor,
                               ),
                             ),
                           ),
@@ -231,24 +234,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         const SizedBox(height: 24),
                         // Register Button
                         CustomButton(
-                          text: state is AuthLoading
+                          label: state is AuthLoading // Changed text to label
                               ? 'Creating Account...'
                               : 'Create Account',
                           isLoading: state is AuthLoading,
                           onPressed: state is AuthLoading
                               ? null
                               : () {
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    context.read<AuthBloc>().add(
-                                          RegisterEvent(
-                                            name: _nameController.text.trim(),
-                                            email: _emailController.text.trim(),
-                                            password:
-                                                _passwordController.text.trim(),
-                                          ),
-                                        );
-                                  }
-                                },
+                            if (_formKey.currentState?.validate() ?? false) {
+                              context.read<AuthBloc>().add(
+                                SignUpEvent( // Changed from RegisterEvent
+                                  name: _nameController.text.trim(),
+                                  email: _emailController.text.trim(),
+                                  password:
+                                  _passwordController.text.trim(),
+                                ),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 16),
                         // Login Link
@@ -268,7 +271,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               child: const Text(
                                 'Login',
                                 style: TextStyle(
-                                  color: AppColors.primary,
+                                  color: AppColors.primaryColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

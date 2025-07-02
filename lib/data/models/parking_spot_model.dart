@@ -4,6 +4,8 @@ import 'package:smart_parking_app/domain/entities/parking_spot_entity.dart';
 
 class ParkingSpotModel extends ParkingSpotEntity {
   final DateTime updatedAt;
+  final String openHoursString;
+  final double ratingScore;
 
   const ParkingSpotModel({
     required String id,
@@ -11,42 +13,56 @@ class ParkingSpotModel extends ParkingSpotEntity {
     required String address,
     required double latitude,
     required double longitude,
-    required int capacity,
+    required int totalSpots,
     required int availableSpots,
-    required String rate,
-    required String openHours,
-    required double rating,
+    required double hourlyRate,
+    required bool isOpen,
+    required String imageUrl,
     required List<String> features,
     required this.updatedAt,
+    required this.openHoursString, // Corrected: Added 'this.'
+    required this.ratingScore,     // Corrected: Added 'this.'
   }) : super(
     id: id,
     name: name,
     address: address,
     latitude: latitude,
     longitude: longitude,
-    capacity: capacity,
+    totalSpots: totalSpots,
     availableSpots: availableSpots,
-    rate: rate,
-    openHours: openHours,
-    rating: rating,
+    hourlyRate: hourlyRate,
+    isOpen: isOpen,
+    imageUrl: imageUrl,
     features: features,
   );
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'name': name,
-      'address': address,
-      'latitude': latitude,
-      'longitude': longitude,
-      'capacity': capacity,
-      'availableSpots': availableSpots,
-      'rate': rate,
-      'openHours': openHours,
-      'rating': rating,
-      'features': features,
+      'id': super.id,
+      'name': super.name,
+      'address': super.address,
+      'latitude': super.latitude,
+      'longitude': super.longitude,
+      'totalSpots': super.totalSpots,
+      'availableSpots': super.availableSpots,
+      'hourlyRate': super.hourlyRate,
+      'isOpen': super.isOpen,
+      'imageUrl': super.imageUrl,
+      'features': super.features,
       'updatedAt': updatedAt.toIso8601String(),
+      'openHours': openHoursString,
+      'rating': ratingScore,
     };
+  }
+
+  static double _parseRate(String rateString) {
+    try {
+      var numericPart = rateString.replaceAll(RegExp(r'[^0-9.]'), '');
+      if (numericPart.isEmpty) return 0.0; // Handle empty string after replace
+      return double.parse(numericPart);
+    } catch (e) {
+      return 0.0;
+    }
   }
 
   factory ParkingSpotModel.fromMap(Map<String, dynamic> map) {
@@ -56,21 +72,23 @@ class ParkingSpotModel extends ParkingSpotEntity {
       address: map['address'] ?? '',
       latitude: map['latitude']?.toDouble() ?? 0.0,
       longitude: map['longitude']?.toDouble() ?? 0.0,
-      capacity: map['capacity']?.toInt() ?? 0,
+      totalSpots: map['totalSpots']?.toInt() ?? map['capacity']?.toInt() ?? 0,
       availableSpots: map['availableSpots']?.toInt() ?? 0,
-      rate: map['rate'] ?? 'Rs. 0/hr',
-      openHours: map['openHours'] ?? '24 hours',
-      rating: map['rating']?.toDouble() ?? 0.0,
+      hourlyRate: _parseRate(map['hourlyRate']?.toString() ?? map['rate']?.toString() ?? '0'),
+      isOpen: map['isOpen'] ?? false,
+      imageUrl: map['imageUrl'] ?? '',
       features: List<String>.from(map['features'] ?? []),
-      updatedAt: map['updatedAt'] != null 
-        ? DateTime.parse(map['updatedAt'])
-        : DateTime.now(),
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'])
+          : DateTime.now(),
+      openHoursString: map['openHours'] ?? '24 hours',
+      ratingScore: map['rating']?.toDouble() ?? 0.0,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ParkingSpotModel.fromJson(String source) => 
+  factory ParkingSpotModel.fromJson(String source) =>
       ParkingSpotModel.fromMap(json.decode(source));
 
   ParkingSpotModel copyWith({
@@ -79,27 +97,31 @@ class ParkingSpotModel extends ParkingSpotEntity {
     String? address,
     double? latitude,
     double? longitude,
-    int? capacity,
+    int? totalSpots,
     int? availableSpots,
-    String? rate,
-    String? openHours,
-    double? rating,
+    double? hourlyRate,
+    bool? isOpen,
+    String? imageUrl,
     List<String>? features,
     DateTime? updatedAt,
+    String? openHoursString,
+    double? ratingScore,
   }) {
     return ParkingSpotModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      address: address ?? this.address,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-      capacity: capacity ?? this.capacity,
-      availableSpots: availableSpots ?? this.availableSpots,
-      rate: rate ?? this.rate,
-      openHours: openHours ?? this.openHours,
-      rating: rating ?? this.rating,
-      features: features ?? this.features,
+      id: id ?? super.id,
+      name: name ?? super.name,
+      address: address ?? super.address,
+      latitude: latitude ?? super.latitude,
+      longitude: longitude ?? super.longitude,
+      totalSpots: totalSpots ?? super.totalSpots,
+      availableSpots: availableSpots ?? super.availableSpots,
+      hourlyRate: hourlyRate ?? super.hourlyRate,
+      isOpen: isOpen ?? super.isOpen,
+      imageUrl: imageUrl ?? super.imageUrl,
+      features: features ?? super.features,
       updatedAt: updatedAt ?? this.updatedAt,
+      openHoursString: openHoursString ?? this.openHoursString,
+      ratingScore: ratingScore ?? this.ratingScore,
     );
   }
 }

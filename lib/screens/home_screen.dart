@@ -57,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (confirm == true) {
       final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.logout();
+      await authService.signOut(); // Changed to signOut
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -68,22 +68,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthService>(context).currentUser;
+    // final user = Provider.of<AuthService>(context).currentUser; // Removed, as it's unused here
 
     return Scaffold(
-      appBar: _selectedIndex == 2 
+      appBar: _selectedIndex == 2
           ? AppBar(
-              title: const Text('Profile'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.exit_to_app),
-                  onPressed: _logout,
-                ),
-              ],
-            ) 
+        title: const Text('Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: _logout,
+          ),
+        ],
+      )
           : AppBar(
-              title: Text(_selectedIndex == 0 ? 'Find Parking' : 'My Bookings'),
-            ),
+        title: Text(_selectedIndex == 0 ? 'Find Parking' : 'My Bookings'),
+      ),
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
@@ -127,11 +127,11 @@ class _ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context).currentUser;
-    
+
     if (user == null) {
       return const Center(child: Text('User not found'));
     }
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -151,7 +151,7 @@ class _ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  user.fullName,
+                  user.name, // Changed from fullName to name
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -216,10 +216,10 @@ class _ProfileScreen extends StatelessWidget {
             icon: Icons.exit_to_app,
             title: 'Logout',
             onTap: () {
-              Provider.of<AuthService>(context, listen: false).logout().then((_) {
+              Provider.of<AuthService>(context, listen: false).signOut().then((_) { // Changed to signOut
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
+                      (route) => false,
                 );
               });
             },
@@ -228,9 +228,9 @@ class _ProfileScreen extends StatelessWidget {
       ),
     );
   }
-}
+} // Ensures _ProfileScreen is properly closed.
 
-class _ProfileMenuItem extends StatelessWidget {
+class _ProfileMenuItem extends StatelessWidget { // Standard class definition
   final IconData icon;
   final String title;
   final VoidCallback onTap;

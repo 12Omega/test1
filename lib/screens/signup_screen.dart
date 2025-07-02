@@ -41,13 +41,15 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final success = await authService.register(
-        _fullNameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text,
+      // Call signUp instead of register. signUp returns UserEntity or throws AuthException.
+      final UserEntity? user = await authService.signUp(
+          _emailController.text.trim(), // email
+          _passwordController.text,     // password
+          _fullNameController.text.trim() // name
       );
-      
-      if (success && mounted) {
+
+      // If signUp is successful (doesn't throw), user is guaranteed non-null.
+      if (mounted) { // Check mounted before UI operations
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Registration successful! Please log in.'),

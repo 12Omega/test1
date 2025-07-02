@@ -6,7 +6,7 @@ import 'package:smart_parking_app/data/repositories/booking_repository_impl.dart
 import 'package:smart_parking_app/data/repositories/parking_repository_impl.dart';
 import 'package:smart_parking_app/domain/repositories/auth_repository.dart';
 import 'package:smart_parking_app/domain/repositories/booking_repository.dart';
-import 'package:smart_parking_app/domain/repositories/parking_repository.dart';
+import 'package:smart_parking_app/domain/repositories/parking_repository.dart' as domain_parking_repo; // Alias
 import 'package:smart_parking_app/presentation/bloc/auth/auth_bloc.dart';
 import 'package:smart_parking_app/presentation/bloc/booking/booking_bloc.dart';
 import 'package:smart_parking_app/presentation/bloc/parking/parking_bloc.dart';
@@ -21,46 +21,46 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => AuthService());
   sl.registerLazySingleton(() => ParkingService());
   sl.registerLazySingleton(() => BookingService());
-  
+
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
+        () => AuthRepositoryImpl(
       authService: sl(),
       sharedPreferences: sl(),
     ),
   );
-  
-  sl.registerLazySingleton<ParkingRepository>(
-    () => ParkingRepositoryImpl(
+
+  sl.registerLazySingleton<domain_parking_repo.ParkingRepository>( // Use alias
+        () => ParkingRepositoryImpl(
       parkingService: sl(),
     ),
   );
-  
-  sl.registerLazySingleton<BookingRepository>(
-    () => BookingRepositoryImpl(
+
+  sl.registerLazySingleton<BookingRepository>( // BookingRepositoryImpl should be defined now
+        () => BookingRepositoryImpl(
       bookingService: sl(),
     ),
   );
 
   // BLoCs
   sl.registerFactory(
-    () => AuthBloc(
+        () => AuthBloc(
       authRepository: sl(),
     ),
   );
-  
+
   sl.registerFactory(
-    () => ParkingBloc(
+        () => ParkingBloc(
       parkingRepository: sl(),
     ),
   );
-  
+
   sl.registerFactory(
-    () => BookingBloc(
+        () => BookingBloc(
       bookingRepository: sl(),
     ),
   );

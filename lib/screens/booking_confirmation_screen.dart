@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:smart_parking_app/core/utils/constants.dart';
+// import 'package:smart_parking_app/core/utils/constants.dart'; // Removed unused import
 import 'package:smart_parking_app/domain/entities/booking_entity.dart';
+// BookingStatus enum is now available via booking_entity.dart
 import 'package:smart_parking_app/screens/home_screen.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
@@ -44,7 +46,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Confirmation message
               const Text(
                 'Booking Confirmed!',
@@ -63,7 +65,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // QR Code
               Container(
                 padding: const EdgeInsets.all(16),
@@ -122,7 +124,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Booking details
               Container(
                 width: double.infinity,
@@ -145,28 +147,28 @@ class BookingConfirmationScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildDetailRow('Parking Location', booking.parkingSpotName),
                     _buildDetailRow(
-                      'Date', 
+                      'Date',
                       DateFormat('EEE, MMM d, yyyy').format(booking.startTime),
                     ),
                     _buildDetailRow(
-                      'Time', 
+                      'Time',
                       '${DateFormat('h:mm a').format(booking.startTime)} - ${DateFormat('h:mm a').format(booking.endTime)}',
                     ),
                     _buildDetailRow('Vehicle Type', booking.vehicleType),
                     _buildDetailRow('Vehicle Plate', booking.vehiclePlate),
                     _buildDetailRow(
-                      'Amount Paid', 
+                      'Amount Paid',
                       '₹${booking.amount.toStringAsFixed(2)}',
                     ),
                     _buildDetailRow(
-                      'Status', 
+                      'Status',
                       _formatStatus(booking.status),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Instructions
               Container(
                 width: double.infinity,
@@ -182,7 +184,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                       'Instructions:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -202,19 +204,19 @@ class BookingConfirmationScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // Done button
               CustomButton(
-                text: 'Done',
+                label: 'Done', // Changed text to label
                 onPressed: () {
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    (route) => false,
+                        (route) => false,
                   );
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Share booking button
               OutlinedButton.icon(
                 onPressed: () {
@@ -228,8 +230,8 @@ class BookingConfirmationScreen extends StatelessWidget {
                 icon: const Icon(Icons.share),
                 label: const Text('Share Booking'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
+                  foregroundColor: AppColors.primaryColor,
+                  side: const BorderSide(color: AppColors.primaryColor),
                   padding: const EdgeInsets.symmetric(
                     vertical: 12,
                     horizontal: 16,
@@ -271,16 +273,17 @@ class BookingConfirmationScreen extends StatelessWidget {
 
   String _formatStatus(BookingStatus status) {
     switch (status) {
+      case BookingStatus.pending: // Added pending from BookingEntity's enum
+        return 'Pending';
       case BookingStatus.confirmed:
         return 'Confirmed';
-      case BookingStatus.active:
-        return 'Active';
+    // Removed 'active' as it's not in BookingEntity's BookingStatus enum
       case BookingStatus.completed:
         return 'Completed';
       case BookingStatus.cancelled:
         return 'Cancelled';
-      default:
-        return 'Unknown';
+      default: // This will catch any other values if they exist
+        return status.toString().split('.').last; // Provides a default string like "pending"
     }
   }
 }

@@ -17,19 +17,19 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   }
 
   Future<void> _onLoadNearbyParkingSpots(
-    LoadNearbyParkingSpotsEvent event,
-    Emitter<ParkingState> emit,
-  ) async {
+      LoadNearbyParkingSpotsEvent event,
+      Emitter<ParkingState> emit,
+      ) async {
     emit(ParkingLoading());
-    
+
     final result = await parkingRepository.getNearbyParkingSpots(
       event.latitude,
       event.longitude,
     );
-    
+
     result.fold(
-      (failure) => emit(ParkingError(message: failure.message)),
-      (parkingSpots) {
+          (failure) => emit(ParkingError(message: failure.message)),
+          (parkingSpots) {
         if (parkingSpots.isEmpty) {
           emit(const ParkingNoResults(
             message: 'No parking spots found nearby',
@@ -42,32 +42,32 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   }
 
   Future<void> _onGetParkingSpotById(
-    GetParkingSpotByIdEvent event,
-    Emitter<ParkingState> emit,
-  ) async {
+      GetParkingSpotByIdEvent event,
+      Emitter<ParkingState> emit,
+      ) async {
     emit(ParkingLoading());
-    
+
     final result = await parkingRepository.getParkingSpotById(event.id);
-    
+
     result.fold(
-      (failure) => emit(ParkingError(message: failure.message)),
-      (parkingSpot) => emit(ParkingSpotLoaded(parkingSpot: parkingSpot)),
+          (failure) => emit(ParkingError(message: failure.message)),
+          (parkingSpot) => emit(ParkingSpotLoaded(parkingSpot: parkingSpot)),
     );
   }
 
   Future<void> _onRefreshParkingData(
-    RefreshParkingDataEvent event,
-    Emitter<ParkingState> emit,
-  ) async {
+      RefreshParkingDataEvent event,
+      Emitter<ParkingState> emit,
+      ) async {
     emit(ParkingRefreshing());
-    
+
     final result = await parkingRepository.refreshParkingData();
-    
+
     result.fold(
-      (failure) => emit(ParkingRefreshError(message: failure.message)),
-      (_) => emit(ParkingRefreshSuccess()),
+          (failure) => emit(ParkingRefreshError(message: failure.message)),
+          (_) => emit(ParkingRefreshSuccess()),
     );
-    
+
     // After refreshing, reload the current state data
     if (state is ParkingLoaded) {
       add(LoadAllParkingSpotsEvent());
@@ -75,16 +75,16 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   }
 
   Future<void> _onLoadAllParkingSpots(
-    LoadAllParkingSpotsEvent event,
-    Emitter<ParkingState> emit,
-  ) async {
+      LoadAllParkingSpotsEvent event,
+      Emitter<ParkingState> emit,
+      ) async {
     emit(ParkingLoading());
-    
+
     final result = await parkingRepository.getAllParkingSpots();
-    
+
     result.fold(
-      (failure) => emit(ParkingError(message: failure.message)),
-      (parkingSpots) {
+          (failure) => emit(ParkingError(message: failure.message)),
+          (parkingSpots) {
         if (parkingSpots.isEmpty) {
           emit(const ParkingNoResults(
             message: 'No parking spots available',
@@ -97,16 +97,16 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   }
 
   Future<void> _onSearchParkingSpots(
-    SearchParkingSpotsEvent event,
-    Emitter<ParkingState> emit,
-  ) async {
+      SearchParkingSpotsEvent event,
+      Emitter<ParkingState> emit,
+      ) async {
     emit(ParkingSearching());
-    
+
     final result = await parkingRepository.searchParkingSpots(event.query);
-    
+
     result.fold(
-      (failure) => emit(ParkingError(message: failure.message)),
-      (parkingSpots) {
+          (failure) => emit(ParkingError(message: failure.message)),
+          (parkingSpots) {
         if (parkingSpots.isEmpty) {
           emit(ParkingNoResults(
             message: 'No results found for "${event.query}"',
@@ -119,21 +119,21 @@ class ParkingBloc extends Bloc<ParkingEvent, ParkingState> {
   }
 
   Future<void> _onFilterParkingSpots(
-    FilterParkingSpotsEvent event,
-    Emitter<ParkingState> emit,
-  ) async {
+      FilterParkingSpotsEvent event,
+      Emitter<ParkingState> emit,
+      ) async {
     emit(ParkingFiltering());
-    
-    final result = await parkingRepository.filterParkingSpots(
-      hasAvailableSpots: event.hasAvailableSpots,
-      features: event.features,
-      maxRate: event.maxRate,
-      isOpen24Hours: event.isOpen24Hours,
+
+    final result = await parkingRepository.getParkingSpotsByFilter( // Renamed method
+      minRating: event.minRating,                 // Updated params
+      requiredFeatures: event.requiredFeatures,
+      sortBy: event.sortBy,
+      ascending: event.ascending,
     );
-    
+
     result.fold(
-      (failure) => emit(ParkingError(message: failure.message)),
-      (parkingSpots) {
+          (failure) => emit(ParkingError(message: failure.message)),
+          (parkingSpots) {
         if (parkingSpots.isEmpty) {
           emit(const ParkingNoResults(
             message: 'No spots match your filters',

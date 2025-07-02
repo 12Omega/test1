@@ -1,6 +1,7 @@
 // lib/widgets/search_bar_widget.dart
 import 'package:flutter/material.dart';
 import 'package:smart_parking_app/core/utils/constants.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 
 class SearchBarWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -58,7 +59,7 @@ class SearchBarWidget extends StatelessWidget {
           IconButton(
             icon: const Icon(
               Icons.filter_list,
-              color: AppColors.primary,
+              color: AppColors.primaryColor,
             ),
             onPressed: onFilterTap,
           ),

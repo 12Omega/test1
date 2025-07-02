@@ -25,7 +25,7 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(hours: 1));
   String _vehicleType = 'Car';
-  String _vehiclePlate = '';
+  // String _vehiclePlate = ''; // Removed as _plateController.text is used
   bool _isLoading = false;
   final List<String> _vehicleTypes = ['Motorcycle', 'Car', 'SUV', 'Van'];
   final TextEditingController _plateController = TextEditingController();
@@ -39,7 +39,7 @@ class _BookingScreenState extends State<BookingScreen> {
     // Extract rate value (e.g. "Rs. 60/hr" -> 60)
     final rateStr = widget.parkingSpot.rate;
     final rateValue = double.tryParse(
-      rateStr.replaceAll(RegExp(r'[^0-9.]'), '')
+        rateStr.replaceAll(RegExp(r'[^0-9.]'), '')
     ) ?? 50; // Default to Rs. 50 if parsing fails
 
     return rateValue * _hours;
@@ -65,7 +65,7 @@ class _BookingScreenState extends State<BookingScreen> {
           picked.hour,
           picked.minute,
         );
-        
+
         // Ensure end time is at least 1 hour after start time
         if (_endDate.isBefore(_startDate.add(const Duration(hours: 1)))) {
           _endDate = _startDate.add(const Duration(hours: 1));
@@ -87,7 +87,7 @@ class _BookingScreenState extends State<BookingScreen> {
         picked.hour,
         picked.minute,
       );
-      
+
       // Ensure end time is after start time
       if (newEndDate.isAfter(_startDate)) {
         setState(() {
@@ -106,14 +106,14 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Future<void> _proceedToPayment() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
     });
 
     try {
       final bookingService = Provider.of<BookingService>(context, listen: false);
-      
+
       final booking = Booking(
         id: '', // Will be assigned by backend
         parkingSpotId: widget.parkingSpot.id,
@@ -126,14 +126,14 @@ class _BookingScreenState extends State<BookingScreen> {
         status: BookingStatus.pending,
         createdAt: DateTime.now(),
       );
-      
+
       final createdBooking = await bookingService.createBooking(booking);
-      
+
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => PaymentScreen(booking: createdBooking),
+            builder: (context) => PaymentScreen(booking: createdBooking.toEntity()),
           ),
         );
       }
@@ -240,7 +240,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Time Selection
               const Text(
                 'Select Parking Time',
@@ -270,7 +270,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Duration and Pricing Summary
               Container(
                 padding: const EdgeInsets.all(16),
@@ -323,7 +323,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Vehicle Details
               const Text(
                 'Vehicle Details',
@@ -369,14 +369,10 @@ class _BookingScreenState extends State<BookingScreen> {
                   }
                   return null;
                 },
-                onChanged: (value) {
-                  setState(() {
-                    _vehiclePlate = value;
-                  });
-                },
+                // onChanged removed as _plateController directly holds the value
               ),
               const SizedBox(height: 32),
-              
+
               // Book Now Button
               CustomButton(
                 label: 'Proceed to Payment',

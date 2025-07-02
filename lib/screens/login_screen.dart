@@ -1,10 +1,13 @@
 // lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_parking_app/core/utils/constants.dart';
+// import 'package:smart_parking_app/core/utils/constants.dart'; // Removed unused import
 import 'package:smart_parking_app/presentation/bloc/auth/auth_bloc.dart';
+import 'package:smart_parking_app/presentation/bloc/auth/auth_event.dart';
+import 'package:smart_parking_app/presentation/bloc/auth/auth_state.dart';
 import 'package:smart_parking_app/screens/home_screen.dart';
 import 'package:smart_parking_app/screens/registration_screen.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -40,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
           }
-          if (state is AuthAuthenticated) {
+          if (state is Authenticated) { // Changed from AuthAuthenticated
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const HomeScreen()),
             );
@@ -64,13 +67,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 100,
                           width: 100,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: AppColors.primaryColor.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.local_parking,
                             size: 60,
-                            color: AppColors.primary,
+                            color: AppColors.primaryColor,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -81,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: AppColors.primaryColor,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -115,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryColor,
                               ),
                             ),
                           ),
@@ -163,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryColor,
                               ),
                             ),
                           ),
@@ -188,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Text(
                               'Forgot Password?',
                               style: TextStyle(
-                                color: AppColors.secondary,
+                                color: AppColors.secondaryColor,
                               ),
                             ),
                           ),
@@ -196,23 +199,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 24),
                         // Login Button
                         CustomButton(
-                          text: state is AuthLoading
+                          label: state is AuthLoading // Changed text to label
                               ? 'Logging In...'
                               : 'Login',
                           isLoading: state is AuthLoading,
                           onPressed: state is AuthLoading
                               ? null
                               : () {
-                                  if (_formKey.currentState?.validate() ?? false) {
-                                    context.read<AuthBloc>().add(
-                                          LoginEvent(
-                                            email: _emailController.text.trim(),
-                                            password:
-                                                _passwordController.text.trim(),
-                                          ),
-                                        );
-                                  }
-                                },
+                            if (_formKey.currentState?.validate() ?? false) {
+                              context.read<AuthBloc>().add(
+                                SignInEvent( // Changed from LoginEvent
+                                  email: _emailController.text.trim(),
+                                  password:
+                                  _passwordController.text.trim(),
+                                ),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 16),
                         // Register Link
@@ -231,14 +234,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        const RegistrationScreen(),
+                                    const RegistrationScreen(),
                                   ),
                                 );
                               },
                               child: const Text(
                                 'Register',
                                 style: TextStyle(
-                                  color: AppColors.primary,
+                                  color: AppColors.primaryColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

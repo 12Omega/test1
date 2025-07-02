@@ -10,6 +10,7 @@ import 'package:smart_parking_app/presentation/bloc/parking/parking_bloc.dart';
 import 'package:smart_parking_app/presentation/bloc/parking/parking_event.dart';
 import 'package:smart_parking_app/presentation/bloc/parking/parking_state.dart';
 import 'package:smart_parking_app/screens/parking_details_screen.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 import 'package:smart_parking_app/widgets/search_bar_widget.dart';
 
@@ -71,11 +72,11 @@ class _MapScreenState extends State<MapScreen> {
   void _loadNearbyParkingSpots() {
     if (_currentPosition != null) {
       context.read<ParkingBloc>().add(
-            LoadNearbyParkingSpotsEvent(
-              latitude: _currentPosition!.latitude,
-              longitude: _currentPosition!.longitude,
-            ),
-          );
+        LoadNearbyParkingSpotsEvent(
+          latitude: _currentPosition!.latitude,
+          longitude: _currentPosition!.longitude,
+        ),
+      );
     }
   }
 
@@ -93,13 +94,13 @@ class _MapScreenState extends State<MapScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      
+
       setState(() {
         _isLoading = false;
         // Default to Kathmandu city center if location is not available
         _currentPosition = const LatLng(27.7172, 85.3240);
       });
-      
+
       _loadParkingSpots();
       return;
     }
@@ -114,13 +115,13 @@ class _MapScreenState extends State<MapScreen> {
             backgroundColor: Colors.orange,
           ),
         );
-        
+
         setState(() {
           _isLoading = false;
           // Default to Kathmandu city center if permission denied
           _currentPosition = const LatLng(27.7172, 85.3240);
         });
-        
+
         _loadParkingSpots();
         return;
       }
@@ -135,13 +136,13 @@ class _MapScreenState extends State<MapScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      
+
       setState(() {
         _isLoading = false;
         // Default to Kathmandu city center if permission permanently denied
         _currentPosition = const LatLng(27.7172, 85.3240);
       });
-      
+
       _loadParkingSpots();
       return;
     }
@@ -151,12 +152,12 @@ class _MapScreenState extends State<MapScreen> {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      
+
       setState(() {
         _isLoading = false;
         _currentPosition = LatLng(position.latitude, position.longitude);
       });
-      
+
       _loadParkingSpots();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -165,13 +166,13 @@ class _MapScreenState extends State<MapScreen> {
           backgroundColor: Colors.red,
         ),
       );
-      
+
       setState(() {
         _isLoading = false;
         // Default to Kathmandu city center if error
         _currentPosition = const LatLng(27.7172, 85.3240);
       });
-      
+
       _loadParkingSpots();
     }
   }
@@ -179,11 +180,11 @@ class _MapScreenState extends State<MapScreen> {
   void _loadParkingSpots() {
     if (_currentPosition != null) {
       context.read<ParkingBloc>().add(
-            LoadNearbyParkingSpotsEvent(
-              latitude: _currentPosition!.latitude,
-              longitude: _currentPosition!.longitude,
-            ),
-          );
+        LoadNearbyParkingSpotsEvent(
+          latitude: _currentPosition!.latitude,
+          longitude: _currentPosition!.longitude,
+        ),
+      );
     } else {
       context.read<ParkingBloc>().add(LoadAllParkingSpotsEvent());
     }
@@ -191,7 +192,7 @@ class _MapScreenState extends State<MapScreen> {
 
   void _updateMarkers(List<ParkingSpotEntity> parkingSpots) {
     Set<Marker> markers = {};
-    
+
     // Add current location marker if available
     if (_currentPosition != null) {
       markers.add(
@@ -203,14 +204,14 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
     }
-    
+
     // Add parking spot markers
     for (var spot in parkingSpots) {
       // Determine marker color based on availability
       final BitmapDescriptor markerIcon = spot.availableSpots > 0
           ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
           : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-          
+
       markers.add(
         Marker(
           markerId: MarkerId(spot.id),
@@ -218,7 +219,7 @@ class _MapScreenState extends State<MapScreen> {
           icon: markerIcon,
           infoWindow: InfoWindow(
             title: spot.name,
-            snippet: 'Available: ${spot.availableSpots}/${spot.totalSpots} · ₹${spot.ratePerHour}/hour',
+            snippet: 'Available: ${spot.availableSpots}/${spot.totalSpots} · ₹${spot.hourlyRate.toStringAsFixed(0)}/hour', // Changed to hourlyRate
             onTap: () {
               Navigator.push(
                 context,
@@ -234,22 +235,30 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
     }
-    
+
     setState(() {
       _markers = markers;
     });
   }
 
   void _applyFilters() {
+    // TODO: Update UI to collect minRating, sortBy, ascending
+    // For now, dispatching with some defaults or current best effort mapping
     context.read<ParkingBloc>().add(
-          FilterParkingSpotsEvent(
-            hasAvailableSpots: _availableSpotsOnly,
-            features: _selectedFeatures.isEmpty ? null : _selectedFeatures,
-            maxRate: _maxPriceRate,
-            isOpen24Hours: _open24Hours,
-          ),
-        );
-    
+      FilterParkingSpotsEvent(
+        // hasAvailableSpots is not directly in new event, could be part of a custom filter logic if needed
+        requiredFeatures: _selectedFeatures.isEmpty ? null : _selectedFeatures,
+        // maxRate is not directly in new event.
+        // minRating is new, default to null for now
+        minRating: null,
+        // sortBy is new, default to null (no specific sort) for now
+        sortBy: null,
+        // ascending is new, default to null (or true) for now
+        ascending: true,
+        // isOpen24Hours is not directly in new event.
+      ),
+    );
+
     setState(() {
       _showFilterPanel = false;
     });
@@ -268,26 +277,26 @@ class _MapScreenState extends State<MapScreen> {
           _isLoading || _currentPosition == null
               ? const Center(child: CircularProgressIndicator())
               : GoogleMap(
-                  mapType: MapType.normal,
-                  initialCameraPosition: CameraPosition(
-                    target: _currentPosition!,
-                    zoom: 15,
-                  ),
-                  onMapCreated: (GoogleMapController controller) {
-                    if (!_isMapCreated) {
-                      _controller.complete(controller);
-                      setState(() {
-                        _isMapCreated = true;
-                      });
-                    }
-                  },
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  markers: _markers,
-                  zoomControlsEnabled: false,
-                  compassEnabled: true,
-                ),
-                
+            mapType: MapType.normal,
+            initialCameraPosition: CameraPosition(
+              target: _currentPosition!,
+              zoom: 15,
+            ),
+            onMapCreated: (GoogleMapController controller) {
+              if (!_isMapCreated) {
+                _controller.complete(controller);
+                setState(() {
+                  _isMapCreated = true;
+                });
+              }
+            },
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            markers: _markers,
+            zoomControlsEnabled: false,
+            compassEnabled: true,
+          ),
+
           // Top search bar
           Positioned(
             top: 16,
@@ -308,7 +317,7 @@ class _MapScreenState extends State<MapScreen> {
               ],
             ),
           ),
-          
+
           // Filter panel
           if (_showFilterPanel)
             Positioned(
@@ -334,7 +343,7 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Available spots only filter
                       SwitchListTile(
                         title: const Text('Show available spots only'),
@@ -346,7 +355,7 @@ class _MapScreenState extends State<MapScreen> {
                           });
                         },
                       ),
-                      
+
                       // 24-hour open filter
                       SwitchListTile(
                         title: const Text('Open 24 hours'),
@@ -358,7 +367,7 @@ class _MapScreenState extends State<MapScreen> {
                           });
                         },
                       ),
-                      
+
                       // Price range
                       const Text(
                         'Maximum hourly rate',
@@ -385,7 +394,7 @@ class _MapScreenState extends State<MapScreen> {
                           Text('₹${_maxPriceRate.toInt()}'),
                         ],
                       ),
-                      
+
                       // Features
                       const Text(
                         'Features',
@@ -402,7 +411,7 @@ class _MapScreenState extends State<MapScreen> {
                           return FilterChip(
                             label: Text(feature),
                             selected: isSelected,
-                            selectedColor: AppColors.secondary.withOpacity(0.2),
+                            selectedColor: AppColors.secondaryColor.withOpacity(0.2),
                             onSelected: (selected) {
                               setState(() {
                                 if (selected) {
@@ -415,7 +424,7 @@ class _MapScreenState extends State<MapScreen> {
                           );
                         }).toList(),
                       ),
-                      
+
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -434,7 +443,7 @@ class _MapScreenState extends State<MapScreen> {
                           ElevatedButton(
                             onPressed: _applyFilters,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: AppColors.primaryColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -457,7 +466,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-            
+
           // Bloc listener for states
           BlocConsumer<ParkingBloc, ParkingState>(
             listener: (context, state) {
@@ -510,7 +519,7 @@ class _MapScreenState extends State<MapScreen> {
               return const SizedBox.shrink();
             },
           ),
-          
+
           // Bottom buttons for refresh and my location
           Positioned(
             bottom: 24,
@@ -532,7 +541,7 @@ class _MapScreenState extends State<MapScreen> {
                   backgroundColor: Colors.white,
                   child: const Icon(
                     Icons.refresh,
-                    color: AppColors.primary,
+                    color: AppColors.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -555,7 +564,7 @@ class _MapScreenState extends State<MapScreen> {
                   backgroundColor: Colors.white,
                   child: const Icon(
                     Icons.my_location,
-                    color: AppColors.primary,
+                    color: AppColors.primaryColor,
                   ),
                 ),
               ],

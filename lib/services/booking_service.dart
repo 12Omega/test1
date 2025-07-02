@@ -8,9 +8,17 @@ class BookingService extends ChangeNotifier {
   // In-memory storage for bookings
   List<Booking> _bookings = [];
   final Random _random = Random();
-  
+
   // Get all bookings
-  List<Booking> get bookings => _bookings;
+  List<Booking> get bookings => _bookings; // Synchronous getter for all bookings
+
+  // Get all bookings for a user (simulated)
+  Future<List<Booking>> getUserBookings() async {
+    // Simulate API call delay
+    await Future.delayed(const Duration(milliseconds: 700));
+    // In a real app, this would filter by userId or fetch from a user-specific endpoint
+    return List<Booking>.from(_bookings); // Return a copy
+  }
 
   // Get upcoming bookings
   List<Booking> getUpcomingBookings() {
@@ -34,17 +42,17 @@ class BookingService extends ChangeNotifier {
 
     // Generate a random ID for the booking
     final id = 'booking_${DateTime.now().millisecondsSinceEpoch}_${_random.nextInt(1000)}';
-    
+
     // Create a new booking with the generated ID and pending status
     final newBooking = booking.copyWith(
       id: id,
       status: BookingStatus.pending,
       createdAt: DateTime.now(),
     );
-    
+
     _bookings.add(newBooking);
     notifyListeners();
-    
+
     return newBooking;
   }
 
@@ -61,16 +69,16 @@ class BookingService extends ChangeNotifier {
   Future<Booking> updateBookingStatus(String id, BookingStatus status) async {
     // Simulate API call delay
     await Future.delayed(const Duration(milliseconds: 1000));
-    
+
     final index = _bookings.indexWhere((booking) => booking.id == id);
     if (index == -1) {
       throw Exception('Booking not found');
     }
-    
+
     final updatedBooking = _bookings[index].copyWith(status: status);
     _bookings[index] = updatedBooking;
     notifyListeners();
-    
+
     return updatedBooking;
   }
 
@@ -78,12 +86,12 @@ class BookingService extends ChangeNotifier {
   Future<Booking> completePayment(String bookingId) async {
     // Simulate payment processing delay
     await Future.delayed(const Duration(milliseconds: 2000));
-    
+
     // 5% chance of payment failure for simulation purposes
     if (_random.nextDouble() < 0.05) {
       throw Exception('Payment processing failed. Please try again.');
     }
-    
+
     return updateBookingStatus(bookingId, BookingStatus.confirmed);
   }
 
@@ -91,7 +99,7 @@ class BookingService extends ChangeNotifier {
   Future<Booking> cancelBooking(String id) async {
     // Simulate API call delay
     await Future.delayed(const Duration(milliseconds: 1000));
-    
+
     return updateBookingStatus(id, BookingStatus.cancelled);
   }
 
@@ -99,10 +107,10 @@ class BookingService extends ChangeNotifier {
   Future<List<Booking>> getBookingHistory() async {
     // Simulate API call delay
     await Future.delayed(const Duration(milliseconds: 1000));
-    
-    return _bookings.where((booking) => 
-      booking.status == BookingStatus.completed || 
-      booking.status == BookingStatus.cancelled
+
+    return _bookings.where((booking) =>
+    booking.status == BookingStatus.completed ||
+        booking.status == BookingStatus.cancelled
     ).toList();
   }
 }

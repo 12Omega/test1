@@ -2,14 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_parking_app/models/booking.dart';
+import 'package:smart_parking_app/domain/entities/booking_entity.dart'; // Changed import
 import 'package:smart_parking_app/screens/booking_confirmation_screen.dart';
 import 'package:smart_parking_app/services/booking_service.dart';
 import 'package:smart_parking_app/utils/constants.dart';
+// TODO: Replace kPrimaryColor with AppColors.primaryColor if not defined in constants.dart
+// import 'package:smart_parking_app/utils/app_colors.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 
 class PaymentScreen extends StatefulWidget {
-  final Booking booking;
+  final BookingEntity booking; // Changed type here
 
   const PaymentScreen({
     Key? key,
@@ -37,14 +39,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     try {
       final bookingService = Provider.of<BookingService>(context, listen: false);
-      
+
       final updatedBooking = await bookingService.completePayment(widget.booking.id);
-      
+
       if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingConfirmationScreen(booking: updatedBooking),
+            builder: (context) => BookingConfirmationScreen(booking: updatedBooking.toEntity()),
           ),
         );
       }
@@ -111,7 +113,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   _buildInfoRow(
                     'Time',
                     '${DateFormat('h:mm a').format(widget.booking.startTime)} - '
-                    '${DateFormat('h:mm a').format(widget.booking.endTime)}',
+                        '${DateFormat('h:mm a').format(widget.booking.endTime)}',
                   ),
                   _buildInfoRow('Duration', '${widget.booking.durationInHours.toStringAsFixed(1)} hours'),
                   _buildInfoRow('Vehicle Type', widget.booking.vehicleType),
@@ -141,7 +143,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Payment Methods
             const Text(
               'Select Payment Method',
@@ -185,7 +187,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Credit Card Info
             if (_selectedPaymentMethod == 'Credit Card')
               Column(
@@ -246,7 +248,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
                 ],
               ),
-            
+
             // Digital Wallet
             if (_selectedPaymentMethod != 'Credit Card')
               Container(
@@ -274,9 +276,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ],
                 ),
               ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Pay Now Button
             CustomButton(
               label: 'Pay Rs. ${widget.booking.amount.toStringAsFixed(2)}',

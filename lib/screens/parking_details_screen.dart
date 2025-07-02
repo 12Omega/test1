@@ -8,6 +8,7 @@ import 'package:smart_parking_app/presentation/bloc/booking/booking_bloc.dart';
 import 'package:smart_parking_app/presentation/bloc/booking/booking_event.dart';
 import 'package:smart_parking_app/presentation/bloc/booking/booking_state.dart';
 import 'package:smart_parking_app/screens/booking_confirmation_screen.dart';
+import 'package:smart_parking_app/utils/app_colors.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,7 +31,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
   double _totalAmount = 0;
   int _durationHours = 0;
-  
+
   final List<String> _vehicleTypes = ['Car', 'Motorcycle', 'SUV', 'Van'];
 
   @override
@@ -38,14 +39,14 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
     super.initState();
     _selectedDate = DateTime.now();
     _startTime = TimeOfDay.now();
-    
+
     // Set default end time to 1 hour later
     final now = TimeOfDay.now();
     _endTime = TimeOfDay(
-      hour: (now.hour + 1) % 24, 
+      hour: (now.hour + 1) % 24,
       minute: now.minute,
     );
-    
+
     _calculateTotalAmount();
   }
 
@@ -65,7 +66,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primary,
+              primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               onSurface: AppColors.textPrimary,
             ),
@@ -74,7 +75,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         );
       },
     );
-    
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
@@ -91,7 +92,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primary,
+              primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               onSurface: AppColors.textPrimary,
             ),
@@ -100,16 +101,16 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         );
       },
     );
-    
+
     if (picked != null && picked != _startTime) {
       setState(() {
         _startTime = picked;
-        
+
         // If end time is before start time, adjust end time
         if (_endTime != null) {
           final startMinutes = _startTime!.hour * 60 + _startTime!.minute;
           final endMinutes = _endTime!.hour * 60 + _endTime!.minute;
-          
+
           if (endMinutes <= startMinutes) {
             // Set end time to 1 hour after start time
             _endTime = TimeOfDay(
@@ -131,7 +132,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primary,
+              primary: AppColors.primaryColor,
               onPrimary: Colors.white,
               onSurface: AppColors.textPrimary,
             ),
@@ -140,13 +141,13 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         );
       },
     );
-    
+
     if (picked != null && picked != _endTime) {
       // Check that end time is after start time
       if (_startTime != null) {
         final startMinutes = _startTime!.hour * 60 + _startTime!.minute;
         final pickedMinutes = picked.hour * 60 + picked.minute;
-        
+
         if (pickedMinutes <= startMinutes) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -157,7 +158,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
           return;
         }
       }
-      
+
       setState(() {
         _endTime = picked;
       });
@@ -170,17 +171,17 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
       // Calculate hours between start and end time
       final startMinutes = _startTime!.hour * 60 + _startTime!.minute;
       final endMinutes = _endTime!.hour * 60 + _endTime!.minute;
-      
+
       // If end time is on the same day
       int minutesDiff = endMinutes - startMinutes;
       if (minutesDiff <= 0) {
         // If end time is on the next day, add 24 hours
         minutesDiff += 24 * 60;
       }
-      
+
       _durationHours = (minutesDiff / 60).ceil();
-      _totalAmount = _durationHours * widget.parkingSpot.ratePerHour;
-      
+      _totalAmount = _durationHours * widget.parkingSpot.hourlyRate; // Changed to hourlyRate
+
       // Apply vehicle type multiplier
       switch (_vehicleType) {
         case 'Motorcycle':
@@ -195,7 +196,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         default: // Car is default
           break;
       }
-      
+
       setState(() {});
     }
   }
@@ -211,7 +212,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         );
         return;
       }
-      
+
       final startDateTime = DateTime(
         _selectedDate!.year,
         _selectedDate!.month,
@@ -219,7 +220,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         _startTime!.hour,
         _startTime!.minute,
       );
-      
+
       final endDateTime = DateTime(
         _selectedDate!.year,
         _selectedDate!.month,
@@ -227,7 +228,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
         _endTime!.hour,
         _endTime!.minute,
       );
-      
+
       // If end time is earlier than start time, it means it's on the next day
       if (endDateTime.isBefore(startDateTime)) {
         final nextDay = _selectedDate!.add(const Duration(days: 1));
@@ -238,30 +239,30 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
           _endTime!.hour,
           _endTime!.minute,
         );
-        
+
         context.read<BookingBloc>().add(
-              CreateBookingEvent(
-                parkingSpotId: widget.parkingSpot.id,
-                parkingSpotName: widget.parkingSpot.name,
-                startTime: startDateTime,
-                endTime: newEndDateTime,
-                vehicleType: _vehicleType,
-                vehiclePlate: _vehiclePlateController.text.trim(),
-                amount: _totalAmount,
-              ),
-            );
+          CreateBookingEvent(
+            parkingSpotId: widget.parkingSpot.id,
+            parkingSpotName: widget.parkingSpot.name,
+            startTime: startDateTime,
+            endTime: newEndDateTime,
+            vehicleType: _vehicleType,
+            vehiclePlate: _vehiclePlateController.text.trim(),
+            amount: _totalAmount,
+          ),
+        );
       } else {
         context.read<BookingBloc>().add(
-              CreateBookingEvent(
-                parkingSpotId: widget.parkingSpot.id,
-                parkingSpotName: widget.parkingSpot.name,
-                startTime: startDateTime,
-                endTime: endDateTime,
-                vehicleType: _vehicleType,
-                vehiclePlate: _vehiclePlateController.text.trim(),
-                amount: _totalAmount,
-              ),
-            );
+          CreateBookingEvent(
+            parkingSpotId: widget.parkingSpot.id,
+            parkingSpotName: widget.parkingSpot.name,
+            startTime: startDateTime,
+            endTime: endDateTime,
+            vehicleType: _vehicleType,
+            vehiclePlate: _vehiclePlateController.text.trim(),
+            amount: _totalAmount,
+          ),
+        );
       }
     }
   }
@@ -269,7 +270,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
   Future<void> _launchMapDirections() async {
     final url = Uri.parse(
         'https://www.google.com/maps/dir/?api=1&destination=${widget.parkingSpot.latitude},${widget.parkingSpot.longitude}');
-    
+
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
@@ -295,7 +296,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
               ),
             );
           }
-          
+
           if (state is BookingCreationSuccess) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -318,16 +319,18 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                     fit: StackFit.expand,
                     children: [
                       // Parking image or default background
-                      widget.parkingSpot.imageUrl != null &&
-                              widget.parkingSpot.imageUrl!.isNotEmpty
+                      // Since imageUrl is non-nullable on ParkingSpotEntity and mapper provides a default,
+                      // we only need to check if it's genuinely empty if that's a possible state,
+                      // or just use it directly. Assuming an empty string means use default.
+                      widget.parkingSpot.imageUrl.isNotEmpty
                           ? Image.network(
-                              widget.parkingSpot.imageUrl!,
-                              fit: BoxFit.cover,
-                            )
+                        widget.parkingSpot.imageUrl, // No '!' needed
+                        fit: BoxFit.cover,
+                      )
                           : Image.asset(
-                              'assets/images/default_parking.jpg',
-                              fit: BoxFit.cover,
-                            ),
+                        'assets/images/default_parking.jpg', // Fallback if imageUrl is empty
+                        fit: BoxFit.cover,
+                      ),
                       // Gradient overlay
                       Container(
                         decoration: BoxDecoration(
@@ -359,7 +362,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                   ),
                 ),
               ),
-              
+
               // Parking spot details
               SliverToBoxAdapter(
                 child: Padding(
@@ -374,7 +377,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8, 
+                                horizontal: 8,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
@@ -396,11 +399,11 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             const SizedBox(width: 16),
                             const Icon(
                               Icons.attach_money,
-                              color: AppColors.secondary,
+                              color: AppColors.secondaryColor,
                               size: 20,
                             ),
                             Text(
-                              '${widget.parkingSpot.ratePerHour}/hour',
+                              '${widget.parkingSpot.hourlyRate.toStringAsFixed(0)}/hour', // Changed to hourlyRate
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
@@ -408,16 +411,16 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // Address and directions
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Icon(
                               Icons.location_on,
-                              color: AppColors.primary,
+                              color: AppColors.primaryColor,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
@@ -438,7 +441,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                               ),
                               label: const Text('Directions'),
                               style: TextButton.styleFrom(
-                                foregroundColor: AppColors.primary,
+                                foregroundColor: AppColors.primaryColor,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 4,
@@ -447,9 +450,9 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // Features
                         const Text(
                           'Features',
@@ -477,9 +480,9 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             );
                           }).toList(),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Booking form
                         const Text(
                           'Book a Spot',
@@ -489,7 +492,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Date selection
                         InkWell(
                           onTap: () => _selectDate(context),
@@ -508,13 +511,13 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             child: Text(
                               _selectedDate != null
                                   ? DateFormat('EEE, MMM d, yyyy')
-                                      .format(_selectedDate!)
+                                  .format(_selectedDate!)
                                   : 'Select a date',
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        
+
                         // Time selection row
                         Row(
                           children: [
@@ -569,9 +572,9 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // Vehicle type selection
                         DropdownButtonFormField<String>(
                           value: _vehicleType,
@@ -596,9 +599,9 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 16),
-                        
+
                         // Vehicle plate
                         TextFormField(
                           controller: _vehiclePlateController,
@@ -618,9 +621,9 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             return null;
                           },
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Duration and price summary
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -633,7 +636,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             children: [
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text('Duration'),
                                   Text('$_durationHours hour(s)'),
@@ -642,7 +645,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                               const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text('Vehicle Type'),
                                   Text(_vehicleType),
@@ -651,16 +654,16 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                               const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text('Rate'),
-                                  Text('₹${widget.parkingSpot.ratePerHour}/hour'),
+                                  Text('₹${widget.parkingSpot.hourlyRate.toStringAsFixed(0)}/hour'), // Changed to hourlyRate
                                 ],
                               ),
                               const Divider(height: 24),
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Total Amount',
@@ -674,7 +677,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
-                                      color: AppColors.primary,
+                                      color: AppColors.primaryColor,
                                     ),
                                   ),
                                 ],
@@ -682,21 +685,21 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Book button
                         CustomButton(
-                          text: state is BookingLoading
+                          label: state is BookingLoading // Changed text to label
                               ? 'Processing...'
                               : 'Book Now',
                           isLoading: state is BookingLoading,
-                          onPressed: widget.parkingSpot.availableSpots > 0 && 
-                                    !(state is BookingLoading)
+                          onPressed: widget.parkingSpot.availableSpots > 0 &&
+                              !(state is BookingLoading)
                               ? _proceedToBooking
                               : null,
                         ),
-                        
+
                         const SizedBox(height: 24),
                       ],
                     ),

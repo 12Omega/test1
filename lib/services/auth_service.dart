@@ -1,6 +1,6 @@
 // lib/services/auth_service.dart
-import 'dart:convert';
-import 'dart:math';
+// import 'dart:convert'; // Unused
+// import 'dart:math'; // Unused
 import 'package:smart_parking_app/core/errors/exceptions.dart';
 import 'package:smart_parking_app/domain/entities/user_entity.dart';
 import 'package:uuid/uuid.dart';
@@ -11,11 +11,14 @@ class AuthService {
   UserEntity? _currentUser;
   final Uuid _uuid = const Uuid();
 
+  // Public getter for the current user
+  UserEntity? get currentUser => _currentUser;
+
   // Sign in a user
   Future<UserEntity> signIn(String email, String password) async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // Mock validation
     if (!_isValidEmail(email)) {
       throw AuthException(message: 'Invalid email format', code: 'invalid-email');
@@ -23,20 +26,20 @@ class AuthService {
 
     // Find the user with matching email (case insensitive)
     final user = _users.values.where(
-      (u) => u.email.toLowerCase() == email.toLowerCase()
+            (u) => u.email.toLowerCase() == email.toLowerCase()
     ).firstOrNull;
-    
+
     // Check if user exists and password is correct (in a real app, would use proper hashing)
     if (user == null) {
       throw AuthException(message: 'User not found', code: 'user-not-found');
     }
-    
+
     // In a real app, we would hash the password and compare hashes
     // This is just a mockup for demonstration
     if (password != 'password123') { // Demo password for testing
       throw AuthException(message: 'Incorrect password', code: 'wrong-password');
     }
-    
+
     _currentUser = user;
     return user;
   }
@@ -45,34 +48,34 @@ class AuthService {
   Future<UserEntity> signUp(String email, String password, String name) async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // Mock validation
     if (!_isValidEmail(email)) {
       throw AuthException(message: 'Invalid email format', code: 'invalid-email');
     }
-    
+
     if (password.length < 6) {
       throw AuthException(message: 'Password should be at least 6 characters', code: 'weak-password');
     }
-    
+
     // Check if email is already in use
     if (_users.values.any((u) => u.email.toLowerCase() == email.toLowerCase())) {
       throw AuthException(message: 'Email already in use', code: 'email-already-in-use');
     }
-    
+
     // Create new user
     final newUser = UserEntity(
-      id: _uuid.v4(),
+      uid: _uuid.v4(), // Changed id to uid
       name: name,
       email: email,
       phone: '',
       photoUrl: '',
     );
-    
+
     // Save user to our mock database
-    _users[newUser.id] = newUser;
+    _users[newUser.uid] = newUser; // Changed to uid
     _currentUser = newUser;
-    
+
     return newUser;
   }
 
@@ -105,24 +108,24 @@ class AuthService {
   }) async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     if (_currentUser == null) {
       throw AuthException(message: 'No user is logged in', code: 'no-user');
     }
-    
+
     // Update user data
     final updatedUser = UserEntity(
-      id: _currentUser!.id,
+      uid: _currentUser!.uid, // Changed id to uid
       name: name ?? _currentUser!.name,
       email: _currentUser!.email,
       phone: phone ?? _currentUser!.phone,
       photoUrl: photoUrl ?? _currentUser!.photoUrl,
     );
-    
+
     // Save updated user
-    _users[updatedUser.id] = updatedUser;
+    _users[updatedUser.uid] = updatedUser; // Changed to uid
     _currentUser = updatedUser;
-    
+
     return updatedUser;
   }
 
@@ -130,18 +133,18 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     if (!_isValidEmail(email)) {
       throw AuthException(message: 'Invalid email format', code: 'invalid-email');
     }
-    
+
     // Check if email exists
     if (!_users.values.any((u) => u.email.toLowerCase() == email.toLowerCase())) {
       // Note: For security reasons, in a real app we would still return success
       // even if the email doesn't exist, but for our mock we'll throw an error
       throw AuthException(message: 'User not found', code: 'user-not-found');
     }
-    
+
     // In a real app, this would send an actual email
     // For our mock, we just return success
     return;

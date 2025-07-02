@@ -44,18 +44,18 @@ class SearchParkingSpotsEvent extends ParkingEvent {
 }
 
 class FilterParkingSpotsEvent extends ParkingEvent {
-  final bool? hasAvailableSpots;
-  final List<String>? features;
-  final double? maxRate;
-  final bool? isOpen24Hours;
+  final double? minRating;
+  final List<String>? requiredFeatures;
+  final String? sortBy;
+  final bool? ascending;
 
   const FilterParkingSpotsEvent({
-    this.hasAvailableSpots,
-    this.features,
-    this.maxRate,
-    this.isOpen24Hours,
+    this.minRating,
+    this.requiredFeatures,
+    this.sortBy,
+    this.ascending,
   });
 
   @override
-  List<Object?> get props => [hasAvailableSpots, features, maxRate, isOpen24Hours];
+  List<Object?> get props => [minRating, requiredFeatures, sortBy, ascending];
 }

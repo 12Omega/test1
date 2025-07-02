@@ -54,6 +54,19 @@ class UserModel extends UserEntity {
 
   factory UserModel.fromJson(String source) => UserModel.fromMap(json.decode(source));
 
+  factory UserModel.fromEntity(UserEntity entity) {
+    return UserModel(
+      uid: entity.uid,
+      email: entity.email,
+      name: entity.name,
+      phone: entity.phone,
+      photoUrl: entity.photoUrl,
+      createdAt: entity.createdAt,
+      isVerified: entity.isVerified,
+      lastLoginAt: null, // lastLoginAt is not part of UserEntity
+    );
+  }
+
   UserModel copyWith({
     String? uid,
     String? email,
