@@ -176,7 +176,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withAlpha(26), // Replaced withOpacity(0.1)
                       spreadRadius: 1,
                       blurRadius: 10,
                       offset: const Offset(0, 2),
@@ -190,7 +190,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                        color: kPrimaryColor.withOpacity(0.1),
+                        color: kPrimaryColor.withAlpha(26), // Replaced withOpacity(0.1)
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(

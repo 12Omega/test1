@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_parking_app/screens/history_screen.dart';
-import 'package:smart_parking_app/screens/login_screen.dart';
+import 'package:smart_parking_app/screens/login_screen.dart' as login_screen_alias;
 import 'package:smart_parking_app/screens/map_screen.dart';
 import 'package:smart_parking_app/services/auth_service.dart';
 import 'package:smart_parking_app/utils/constants.dart';
@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await authService.signOut(); // Changed to signOut
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(builder: (context) => const login_screen_alias.LoginScreen()),
         );
       }
     }
@@ -88,9 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: const [
-          MapScreen(),
-          HistoryScreen(),
-          _ProfileScreen(),
+          const MapScreen(), // Added const
+          const HistoryScreen(), // Added const for consistency, already valid
+          const _ProfileScreen(), // Added const for consistency, already valid
         ],
         onPageChanged: (index) {
           setState(() {
@@ -218,7 +218,7 @@ class _ProfileScreen extends StatelessWidget {
             onTap: () {
               Provider.of<AuthService>(context, listen: false).signOut().then((_) { // Changed to signOut
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const login_screen_alias.LoginScreen()),
                       (route) => false,
                 );
               });

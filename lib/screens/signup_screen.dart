@@ -5,6 +5,7 @@ import 'package:smart_parking_app/services/auth_service.dart';
 import 'package:smart_parking_app/utils/constants.dart';
 import 'package:smart_parking_app/widgets/custom_button.dart';
 import 'package:smart_parking_app/widgets/custom_text_field.dart';
+// import 'package:smart_parking_app/domain/entities/user_entity.dart'; // Unused
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -41,14 +42,15 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      // Call signUp instead of register. signUp returns UserEntity or throws AuthException.
-      final UserEntity? user = await authService.signUp(
+      // Call signUp. If it doesn't throw, registration is successful.
+      // The returned UserEntity is not explicitly used here, so we can omit assigning it.
+      await authService.signUp(
           _emailController.text.trim(), // email
           _passwordController.text,     // password
           _fullNameController.text.trim() // name
       );
 
-      // If signUp is successful (doesn't throw), user is guaranteed non-null.
+      // If signUp is successful (doesn't throw)
       if (mounted) { // Check mounted before UI operations
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -59,15 +61,20 @@ class _SignupScreenState extends State<SignupScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
-      } else {
+      }
+      // No 'else' here. If not mounted, we just don't do UI things.
+      // Error messages should be handled by the catch block.
+    } catch (e) {
+      // It's good practice to give a more specific error message if possible.
+      // For now, using a generic one, but you might inspect 'e' for details.
+      // For example, if AuthService throws a specific AuthException with a message.
+      if (mounted) { // Check mounted before calling setState
         setState(() {
-          _errorMessage = 'Registration failed. Email might already be in use.';
+          // Example: If e has a message property: _errorMessage = e.message;
+          // Or based on type of e.
+          _errorMessage = 'Registration failed. Email might be in use or another error occurred.';
         });
       }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'An error occurred. Please try again later.';
-      });
     } finally {
       if (mounted) {
         setState(() {
@@ -111,8 +118,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SizedBox(height: 40),
                   CustomTextField(
                     controller: _fullNameController,
-                    label: 'Full Name',
-                    hint: 'Enter your full name',
+                    labelText: 'Full Name', // label -> labelText
+                    hintText: 'Enter your full name', // hint -> hintText
                     keyboardType: TextInputType.name,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -120,13 +127,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                       return null;
                     },
-                    prefixIcon: Icons.person_outline,
+                    icon: Icons.person_outline, // prefixIcon -> icon
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _emailController,
-                    label: 'Email',
-                    hint: 'Enter your email',
+                    labelText: 'Email', // label -> labelText
+                    hintText: 'Enter your email', // hint -> hintText
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -138,13 +145,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                       return null;
                     },
-                    prefixIcon: Icons.email_outlined,
+                    icon: Icons.email_outlined, // prefixIcon -> icon
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _passwordController,
-                    label: 'Password',
-                    hint: 'Enter your password',
+                    labelText: 'Password', // label -> labelText
+                    hintText: 'Enter your password', // hint -> hintText
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -155,13 +162,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                       return null;
                     },
-                    prefixIcon: Icons.lock_outline,
+                    icon: Icons.lock_outline, // prefixIcon -> icon
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _confirmPasswordController,
-                    label: 'Confirm Password',
-                    hint: 'Confirm your password',
+                    labelText: 'Confirm Password', // label -> labelText
+                    hintText: 'Confirm your password', // hint -> hintText
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -172,7 +179,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       }
                       return null;
                     },
-                    prefixIcon: Icons.lock_outline,
+                    icon: Icons.lock_outline, // prefixIcon -> icon
                   ),
                   const SizedBox(height: 24),
                   if (_errorMessage.isNotEmpty)

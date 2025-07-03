@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_parking_app/core/utils/constants.dart';
+// import 'package:smart_parking_app/core/utils/constants.dart'; // Unused
 import 'package:smart_parking_app/domain/entities/parking_spot_entity.dart';
 import 'package:smart_parking_app/presentation/bloc/booking/booking_bloc.dart';
 import 'package:smart_parking_app/presentation/bloc/booking/booking_event.dart';
@@ -339,7 +339,7 @@ class _ParkingDetailsScreenState extends State<ParkingDetailsScreen> {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withOpacity(0.7),
+                              Colors.black.withAlpha(179), // Replaced withOpacity(0.7)
                             ],
                           ),
                         ),

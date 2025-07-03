@@ -2,16 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_parking_app/domain/entities/booking_entity.dart'; // Changed import
+import 'package:smart_parking_app/domain/entities/booking_entity.dart';
 import 'package:smart_parking_app/screens/booking_confirmation_screen.dart';
 import 'package:smart_parking_app/services/booking_service.dart';
-import 'package:smart_parking_app/utils/constants.dart';
-// TODO: Replace kPrimaryColor with AppColors.primaryColor if not defined in constants.dart
-// import 'package:smart_parking_app/utils/app_colors.dart';
+import 'package:smart_parking_app/utils/constants.dart'; // kPrimaryColor is used
+// import 'package:smart_parking_app/utils/app_colors.dart'; // Not directly used, kPrimaryColor from constants is used
 import 'package:smart_parking_app/widgets/custom_button.dart';
 
 class PaymentScreen extends StatefulWidget {
-  final BookingEntity booking; // Changed type here
+  final BookingEntity booking;
 
   const PaymentScreen({
     Key? key,
@@ -39,14 +38,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     try {
       final bookingService = Provider.of<BookingService>(context, listen: false);
-
-      final updatedBooking = await bookingService.completePayment(widget.booking.id);
+      // Assuming completePayment returns a 'models.Booking' which has toEntity()
+      final updatedModelBooking = await bookingService.completePayment(widget.booking.id);
 
       if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => BookingConfirmationScreen(booking: updatedBooking.toEntity()),
+            builder: (context) => BookingConfirmationScreen(booking: updatedModelBooking.toEntity()),
           ),
         );
       }
@@ -87,7 +86,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withAlpha(26), // Replaced withOpacity(0.1)
                     spreadRadius: 1,
                     blurRadius: 10,
                     offset: const Offset(0, 2),
@@ -134,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          color: kPrimaryColor,
+                          color: kPrimaryColor, // From constants.dart
                         ),
                       ),
                     ],
@@ -159,10 +158,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withAlpha(26), // Corrected: Was Colors.grey.withOpacity(0.1)
                     spreadRadius: 1,
                     blurRadius: 5,
-                    offset: const Offset(0, 2),
+                    offset: const Offset(0, 2), // Added offset as it's good practice for BoxShadow
                   ),
                 ],
               ),
@@ -179,7 +178,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         }
                       });
                     },
-                    activeColor: kPrimaryColor,
+                    activeColor: kPrimaryColor, // From constants.dart
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     dense: true,
                   );
@@ -332,7 +331,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       case 'ConnectIPS':
         return Colors.blue;
       default:
-        return kPrimaryColor;
+        return kPrimaryColor; // From constants.dart
     }
   }
 }

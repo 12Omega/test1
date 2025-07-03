@@ -315,7 +315,7 @@ class _BookingCard extends StatelessWidget {
           // Booking Status Bar
           Container(
             decoration: BoxDecoration(
-              color: _getStatusColor().withOpacity(0.1),
+              color: _getStatusColor().withAlpha(26), // Replaced withOpacity(0.1)
               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -366,7 +366,7 @@ class _BookingCard extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: kPrimaryColor.withOpacity(0.1),
+                        color: kPrimaryColor.withAlpha(26), // Replaced withOpacity(0.1)
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(

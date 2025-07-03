@@ -1,6 +1,6 @@
 // lib/widgets/search_bar_widget.dart
 import 'package:flutter/material.dart';
-import 'package:smart_parking_app/core/utils/constants.dart';
+// import 'package:smart_parking_app/core/utils/constants.dart'; // Unused
 import 'package:smart_parking_app/utils/app_colors.dart';
 
 class SearchBarWidget extends StatelessWidget {
@@ -26,7 +26,7 @@ class SearchBarWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withAlpha(26), // Replaced withOpacity(0.1)
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

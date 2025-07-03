@@ -36,7 +36,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withAlpha(26), // Replaced withOpacity(0.1)
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -74,7 +74,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha(13), // Replaced withOpacity(0.05)
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
