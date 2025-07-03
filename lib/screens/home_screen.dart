@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_parking_app/screens/history_screen.dart';
 import 'package:smart_parking_app/screens/login_screen.dart' as login_screen_alias;
-import 'package:smart_parking_app/screens/map_screen.dart';
+import 'package:smart_parking_app/screens/map_screen.dart' as map_screen_alias;
 import 'package:smart_parking_app/services/auth_service.dart';
 import 'package:smart_parking_app/utils/constants.dart';
 
@@ -88,9 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: const [
-          const MapScreen(), // Added const
-          const HistoryScreen(), // Added const for consistency, already valid
-          const _ProfileScreen(), // Added const for consistency, already valid
+          const map_screen_alias.MapScreen(), // Added alias
+          const HistoryScreen(),
+          const _ProfileScreen(),
         ],
         onPageChanged: (index) {
           setState(() {
